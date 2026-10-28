@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Page Metadata & Fonts -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CycleGo – Login &amp; New Rider Sign-In</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body">
+
+    <div class="login-container">
+        
+        <!-- Left Side: Visual Showcase Panel -->
+        <div class="login-visual-panel">
+            <div class="visual-overlay"></div>
+            <img src="images/cycle_hero.jpg" alt="CycleGo Electric Bicycle" class="visual-img">
+            
+            <div class="visual-caption">
+                <div class="brand-pill"><span class="pulse-dot"></span> Smart Urban Mobility</div>
+                <h2>Explore More.<br><span>Ride Better.</span></h2>
+                <p>Eco-friendly bicycle rentals for daily commutes, weekend gravel trails, and city tours.</p>
+            </div>
+        </div>
+
+        <!-- Right Side: Authentication Panel -->
+        <div class="login-form-panel">
+            <div class="login-form-wrapper">
+                
+                <!-- Brand Header -->
+                <div class="login-header">
+                    <div class="logo">
+                        <span class="logo-icon">🚲</span>
+                        <span>Cycle<span class="logo-highlight">Go</span></span>
+                    </div>
+                    <h1 class="login-title">Sign In / Register</h1>
+                    <p class="login-subtitle">Pick a demo account or sign in instantly as a new rider.</p>
+                </div>
+
+                <!-- 1. Demo Credentials Dropdown Box -->
+                <div class="demo-select-card">
+                    <label for="demoSelect" class="form-label">🔑 Demo Accounts (Quick Fill &amp; Sign-In)</label>
+                    <div class="demo-select-row">
+                        <select id="demoSelect" class="form-control form-select">
+                            <option value="">-- Select a Demo User to Test --</option>
+                            <option value="0">🚴 Alex Rider (Customer)</option>
+                            <option value="1">👑 Sarah Admin (Fleet Admin)</option>
+                            <option value="2">🚴 Maya Patel (Customer)</option>
+                            <option value="3">🚵 Vikram Singh (Customer)</option>
+                            <option value="4">🚴 Priya Sharma (Customer)</option>
+                        </select>
+                        <button type="button" id="btnQuickDemoLogin" class="btn btn-secondary btn-sm" disabled>1-Click Login</button>
+                    </div>
+                </div>
+
+                <!-- 2. Auth Mode Toggle Tabs (Existing User vs New User) -->
+                <div class="auth-tabs">
+                    <button type="button" class="tab-btn active" id="tabBtnExisting">Existing Account</button>
+                    <button type="button" class="tab-btn" id="tabBtnNewUser">✨ New User Sign-In</button>
+                </div>
+
+                <!-- 3. Existing User Login Form -->
+                <form id="formExisting" class="login-form">
+                    <div class="form-group">
+                        <label for="emailInput" class="form-label">Email Address</label>
+                        <input type="email" id="emailInput" class="form-control" placeholder="rider@cyclego.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="passwordInput" class="form-label">Password</label>
+                        <input type="password" id="passwordInput" class="form-control" placeholder="Enter password" required>
+                    </div>
+
+                    <div id="loginFeedback" class="login-feedback hidden"></div>
+
+                    <button type="submit" id="submitExistingBtn" class="btn btn-primary btn-block">
+                        <span class="btn-text">Sign In</span>
+                    </button>
+                </form>
+
+                <!-- 4. New User Quick Sign-In Form (Name, Phone, Optional Email) -->
+                <form id="formNewUser" class="login-form hidden">
+                    <div class="form-group">
+                        <label for="newUserName" class="form-label">Full Name <span class="required-star">*</span></label>
+                        <input type="text" id="newUserName" class="form-control" placeholder="e.g. John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newUserPhone" class="form-label">Phone Number <span class="required-star">*</span></label>
+                        <input type="tel" id="newUserPhone" class="form-control" placeholder="e.g. 9876543210" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newUserEmail" class="form-label">Email Address <span class="optional-tag">(Optional)</span></label>
+                        <input type="email" id="newUserEmail" class="form-control" placeholder="e.g. john@example.com">
+                    </div>
+
+                    <div id="newFeedback" class="login-feedback hidden"></div>
+
+                    <button type="submit" id="submitNewBtn" class="btn btn-primary btn-block">
+                        <span class="btn-text">Start Riding 🚀</span>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Client-Side Authentication Logic -->
+    <script>
+        // 5 Demo User Credentials
+        const DEMO_USERS = [
+            { name: "Alex Rider", email: "rider@cyclego.com", pass: "user123", role: "Customer", avatar: "🚴", phone: "9876543210" },
+            { name: "Sarah Admin", email: "admin@cyclego.com", pass: "admin123", role: "Admin", avatar: "👑", phone: "9876543211" },
+            { name: "Maya Patel", email: "maya@cyclego.com", pass: "user123", role: "Customer", avatar: "🚴", phone: "9876543212" },
+            { name: "Vikram Singh", email: "vikram@cyclego.com", pass: "user123", role: "Customer", avatar: "🚵", phone: "9876543213" },
+            { name: "Priya Sharma", email: "priya@cyclego.com", pass: "user123", role: "Customer", avatar: "🚴", phone: "9876543214" }
+        ];
+
+        // Elements
+        const demoSelect = document.getElementById('demoSelect');
+        const btnQuickDemo = document.getElementById('btnQuickDemoLogin');
+        const tabBtnExisting = document.getElementById('tabBtnExisting');
+        const tabBtnNewUser = document.getElementById('tabBtnNewUser');
+        const formExisting = document.getElementById('formExisting');
+        const formNewUser = document.getElementById('formNewUser');
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginFeedback = document.getElementById('loginFeedback');
+        const newFeedback = document.getElementById('newFeedback');
+
+        // Tab Switching
+        tabBtnExisting.addEventListener('click', () => switchTab('existing'));
+        tabBtnNewUser.addEventListener('click', () => switchTab('new'));
+
+        function switchTab(mode) {
+            if (mode === 'existing') {
+                tabBtnExisting.classList.add('active');
+                tabBtnNewUser.classList.remove('active');
+                formExisting.classList.remove('hidden');
+                formNewUser.classList.add('hidden');
+            } else {
+                tabBtnNewUser.classList.add('active');
+                tabBtnExisting.classList.remove('active');
+                formNewUser.classList.remove('hidden');
+                formExisting.classList.add('hidden');
+            }
+        }
+
+        // Demo Dropdown: auto-populate inputs
+        demoSelect.addEventListener('change', () => {
+            const idx = demoSelect.value;
+            if (idx !== "") {
+                const u = DEMO_USERS[idx];
+                switchTab('existing');
+                emailInput.value = u.email;
+                passwordInput.value = u.pass;
+                btnQuickDemo.disabled = false;
+            } else {
+                btnQuickDemo.disabled = true;
+            }
+        });
+
+        // 1-Click Demo Login
+        btnQuickDemo.addEventListener('click', () => {
+            const idx = demoSelect.value;
+            if (idx !== "") {
+                const u = DEMO_USERS[idx];
+                completeLogin({ name: u.name, email: u.email, phone: u.phone, role: u.role, avatar: u.avatar });
+            }
+        });
+
+        // Handle Existing Login Submit
+        formExisting.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    completeLogin(data.user);
+                } else {
+                    showFeedback(loginFeedback, data.message || "Invalid credentials", false);
+                }
+            } catch (err) {
+                // Client fallback matching demo list
+                const match = DEMO_USERS.find(u => u.email.toLowerCase() === email.toLowerCase() && u.pass === password);
+                if (match) {
+                    completeLogin({ name: match.name, email: match.email, phone: match.phone, role: match.role, avatar: match.avatar });
+                } else {
+                    showFeedback(loginFeedback, "Invalid credentials. Select from demo dropdown.", false);
+                }
+            }
+        });
+
+        // Handle New User Quick Sign-In Submit (Name, Phone, Optional Email)
+        formNewUser.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('newUserName').value.trim();
+            const phone = document.getElementById('newUserPhone').value.trim();
+            const email = document.getElementById('newUserEmail').value.trim();
+
+            if (!name || !phone) {
+                showFeedback(newFeedback, "Name and phone number are required.", false);
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/quick-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, email })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    completeLogin(data.user);
+                } else {
+                    showFeedback(newFeedback, data.message || "Sign in failed.", false);
+                }
+            } catch (err) {
+                // Resilient local session creation
+                completeLogin({
+                    name,
+                    phone,
+                    email: email || `${phone}@cyclego.user`,
+                    role: "Customer",
+                    avatar: "🚴"
+                });
+            }
+        });
+
+        // Persist session and redirect
+        function completeLogin(user) {
+            localStorage.setItem('cyclego_user', JSON.stringify(user));
+            const activeFb = formExisting.classList.contains('hidden') ? newFeedback : loginFeedback;
+            showFeedback(activeFb, `Welcome, ${user.name}! Redirecting...`, true);
+
+            setTimeout(() => {
+                window.location.href = user.role === 'Admin' ? 'admin.html' : 'index.html';
+            }, 600);
+        }
+
+        function showFeedback(element, text, isSuccess) {
+            element.className = 'login-feedback ' + (isSuccess ? 'success' : 'error');
+            element.textContent = text;
+            element.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

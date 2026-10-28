@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- SECTION 1: Page Metadata & Styling -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CycleGo – Admin Fleet Management</title>
+    
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+
+    <!-- SECTION 2: Admin Navigation -->
+    <header class="header-nav admin-nav">
+        <div class="container navbar">
+            <div class="logo">
+                <span class="logo-icon">🚲</span>
+                <span>Cycle<span class="logo-highlight">Go</span> <small class="admin-chip">Admin Portal</small></span>
+            </div>
+
+            <div class="nav-auth-area">
+                <div class="user-chip">
+                    <span>👑</span>
+                    <span id="adminName">Sarah Admin</span>
+                    <button id="adminLogoutBtn" class="btn-logout" title="Sign Out">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container section-padding">
+        
+        <!-- SECTION 3: Admin Metrics KPI Cards -->
+        <div class="admin-hero">
+            <h1 class="admin-title">Booked Cycles &amp; Fleet Operations</h1>
+            <p class="admin-subtitle">Live overview of reserved bicycles, riders, and return status.</p>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-icon">📋</span>
+                <div>
+                    <h3 id="statTotalBookings">0</h3>
+                    <p>Total Cycles Booked</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <span class="metric-icon">🚴</span>
+                <div>
+                    <h3 id="statActiveRentals">0</h3>
+                    <p>Active / On-Road</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <span class="metric-icon">💰</span>
+                <div>
+                    <h3 id="statRevenue">₹0</h3>
+                    <p>Total Revenue</p>
+                </div>
+            </div>
+            <div class="metric-card">
+                <span class="metric-icon">✅</span>
+                <div>
+                    <h3 id="statReturned">0</h3>
+                    <p>Returned to Depot</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: Booked Cycles Filter & Search Bar -->
+        <div class="admin-controls-bar">
+            <div class="filter-group">
+                <button class="btn-filter active" data-filter="all">All Bookings</button>
+                <button class="btn-filter" data-filter="active">Active / Confirmed</button>
+                <button class="btn-filter" data-filter="returned">Returned</button>
+            </div>
+            <input type="text" id="riderSearch" class="form-control admin-search" placeholder="🔍 Search by rider or cycle...">
+        </div>
+
+        <!-- SECTION 5: Booked Cycles Cards Grid -->
+        <div class="booked-cycles-grid" id="bookedCyclesGrid">
+            <div class="loading-state">Loading booked cycles...</div>
+        </div>
+
+    </main>
+
+    <!-- SECTION 6: Admin Client Logic -->
+    <script>
+        // Check Admin Session
+        const sessionUser = JSON.parse(localStorage.getItem('cyclego_user') || 'null');
+        if (!sessionUser || sessionUser.role !== 'Admin') {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('adminName').textContent = sessionUser.name;
+        }
+
+        // Logout
+        document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('cyclego_user');
+            window.location.href = 'login.html';
+        });
+
+        let allBookings = [];
+        let currentFilter = 'all';
+
+        // Fetch Bookings from API
+        async function loadAdminBookings() {
+            try {
+                const res = await fetch('/api/admin/bookings');
+                const data = await res.json();
+                if (data.success) {
+                    allBookings = data.bookings;
+                    renderMetrics(data.metrics);
+                    renderBookedCycles();
+                }
+            } catch (err) {
+                console.error("Failed to load admin bookings", err);
+            }
+        }
+
+        function renderMetrics(metrics) {
+            document.getElementById('statTotalBookings').textContent = metrics.totalBookings;
+            document.getElementById('statActiveRentals').textContent = metrics.activeRentals;
+            document.getElementById('statRevenue').textContent = '₹' + metrics.totalRevenue;
+            document.getElementById('statReturned').textContent = metrics.returnedRentals;
+        }
+
+        function renderBookedCycles() {
+            const grid = document.getElementById('bookedCyclesGrid');
+            const search = document.getElementById('riderSearch').value.toLowerCase();
+
+            const filtered = allBookings.filter(b => {
+                const matchesFilter = currentFilter === 'all' 
+                    ? true 
+                    : (currentFilter === 'active' ? (b.status === 'Active' || b.status === 'Confirmed') : b.status === 'Returned');
+                const matchesSearch = b.userName.toLowerCase().includes(search) || 
+                                      b.cycleName.toLowerCase().includes(search) ||
+                                      b.userEmail.toLowerCase().includes(search);
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No cycle bookings match your filter.</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(b => `
+                <div class="booked-cycle-card">
+                    <div class="booked-img-wrap">
+                        <img src="${b.cycleImage || 'images/cycle_hero.jpg'}" alt="${b.cycleName}" class="booked-img" onerror="this.src='images/cycle_hero.jpg'">
+                        <span class="status-chip status-${b.status.toLowerCase()}">${b.status}</span>
+                    </div>
+                    <div class="booked-body">
+                        <div class="booked-header">
+                            <h3>${b.cycleName}</h3>
+                            <span class="category-badge">${b.category}</span>
+                        </div>
+                        
+                        <div class="rider-info-box">
+                            <p><strong>Rider:</strong> ${b.userName}</p>
+                            ${b.userEmail ? `<p><strong>Email:</strong> ${b.userEmail}</p>` : ''}
+                            ${b.userPhone ? `<p><strong>Phone:</strong> ${b.userPhone}</p>` : ''}
+                            <p><strong>Duration:</strong> ${b.days} ${b.days === 1 ? 'Day' : 'Days'} (₹${b.pricePerDay}/day)</p>
+                            <p><strong>Total Amount:</strong> <span class="highlight-price">₹${b.totalCost}</span></p>
+                        </div>
+
+                        <div class="admin-actions">
+                            ${b.status !== 'Returned' ? `
+                                <button class="btn btn-sm btn-primary" onclick="updateStatus('${b._id}', 'Returned')">Mark Returned</button>
+                                ${b.status === 'Confirmed' ? `
+                                    <button class="btn btn-sm btn-secondary" onclick="updateStatus('${b._id}', 'Active')">Mark Active 🟢</button>
+                                ` : ''}
+                                ${b.status === 'Active' ? `
+                                    <button class="btn btn-sm btn-outline" style="border:1px solid var(--border); background:var(--surface);" onclick="updateStatus('${b._id}', 'Confirmed')">Set to Confirmed</button>
+                                ` : ''}
+                            ` : `
+                                <span class="returned-text">✓ Ride Completed</span>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function updateStatus(id, newStatus) {
+            try {
+                const res = await fetch('/api/admin/bookings/' + id, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (res.ok) {
+                    loadAdminBookings();
+                }
+            } catch (err) {
+                console.error("Status update error", err);
+            }
+        }
+
+        // Filters
+        document.querySelectorAll('.filter-group .btn-filter').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-group .btn-filter').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.getAttribute('data-filter');
+                renderBookedCycles();
+            });
+        });
+
+        // Search Input
+        document.getElementById('riderSearch').addEventListener('input', renderBookedCycles);
+
+        loadAdminBookings();
+    </script>
+</body>
+</html>

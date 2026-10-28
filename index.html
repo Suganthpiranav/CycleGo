@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- SECTION 1: Page Metadata -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CycleGo – Premium Eco-Friendly Bicycle Rentals.">
+    <title>CycleGo – Bicycle Rental Portal</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <!-- React 18 & Babel Standalone -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+
+    <!-- SECTION 2: Navigation Bar -->
+    <header class="header-nav">
+        <div class="container navbar">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🚲</span>
+                <span>Cycle<span class="logo-highlight">Go</span></span>
+            </a>
+
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#fleet">Fleet</a></li>
+                    <li><a href="#my-bookings">My Bookings</a></li>
+                </ul>
+            </nav>
+
+            <div class="nav-auth-area">
+                <div id="userProfileChip" class="user-chip hidden">
+                    <span id="userAvatar">🚴</span>
+                    <span id="userNameDisplay">Rider</span>
+                    <button id="logoutBtn" class="btn-logout" title="Sign Out">Sign Out</button>
+                </div>
+                <a href="login.html" id="loginNavBtn" class="btn btn-primary btn-sm">Sign In</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- SECTION 3: Hero Showcase -->
+        <section class="hero" id="home">
+            <div class="container hero-grid">
+                
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="pulse-dot"></span> Eco-Friendly Urban Mobility
+                    </div>
+                    <h1 class="hero-title">
+                        Explore More.<br><span>Ride Smart.</span>
+                    </h1>
+                    <p class="hero-description">
+                        Instant bicycle rentals for campus commutes, weekend getaways, and fitness routines. 
+                        Select your favorite model, calculate rates in real time, and reserve your ride.
+                    </p>
+                    
+                    <div class="hero-actions">
+                        <a href="#fleet" class="btn btn-primary">
+                            <span>🚲</span> Browse Fleet
+                        </a>
+                        <a href="#my-bookings" class="btn btn-secondary">
+                            My Reservations
+                        </a>
+                    </div>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <h3>7+</h3>
+                            <p>Available Models</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>₹200</h3>
+                            <p>Starting Per Day</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>100%</h3>
+                            <p>Eco-Friendly</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-image-wrap">
+                    <img src="images/cycle_hero.jpg" alt="CycleGo Electric Bicycle" class="hero-cycle-img">
+                    <div class="floating-hero-card">
+                        <span class="card-icon">⚡</span>
+                        <div>
+                            <strong>Aurora Volt Commuter</strong>
+                            <p>45km Range · Hydraulic Discs</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 4: Interactive Fleet Section (React Component) -->
+        <section class="section-padding" id="fleet">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">Rental Fleet</span>
+                    <h2 class="section-title">Available Bicycles</h2>
+                    <p class="section-subtitle">
+                        Filter by category, select rental duration, and calculate prices live.
+                    </p>
+                </div>
+
+                <div id="react-cycle-root"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: My Bookings Section -->
+        <section class="section-padding bg-alt" id="my-bookings">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">My Reservations</span>
+                    <h2 class="section-title">Active Bookings</h2>
+                    <p class="section-subtitle">Your reserved bicycles and rental details.</p>
+                </div>
+
+                <div class="bookings-table-wrapper">
+                    <table class="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>Rider</th>
+                                <th>Bicycle</th>
+                                <th>Category</th>
+                                <th>Duration</th>
+                                <th>Total Cost</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 2rem;">
+                                    No bookings recorded yet. Pick a bicycle above to make your reservation!
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SECTION 6: Footer -->
+    <footer class="site-footer">
+        <div class="container footer-content">
+            <div class="footer-left">
+                <div class="logo">
+                    <span class="logo-icon">🚲</span>
+                    <span>Cycle<span class="logo-highlight">Go</span></span>
+                </div>
+                <p>Sustainable, smart bicycle rentals designed for modern mobility.</p>
+            </div>
+            <div class="footer-right">
+                <p>&copy; 2026 CycleGo. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SECTION 7: Client Scripts -->
+    <script type="text/babel" src="react-app.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
